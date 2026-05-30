@@ -7,11 +7,10 @@ def format_num(value):
         return round(value, 2)
     return value
 
-def gen_distractors(correct, count=2, spread=0):
+def gen_distractors(correct, count=2):
     distractors = set()
-    if spread == 0:
-        spread = max(1, abs(correct) * 0.2) if correct != 0 else 3
-    spread = max(1, int(spread))
+    spread = max(2, abs(correct) * 0.15 if correct != 0 else 3)
+    spread = max(2, int(spread))
     attempts = 0
     while len(distractors) < count and attempts < 50:
         choice = random.choice([
@@ -19,7 +18,7 @@ def gen_distractors(correct, count=2, spread=0):
             correct - random.randint(1, spread),
             correct + random.randint(-2, 2) + spread // 2,
             correct * random.choice([0.5, 1.5, 2, 0.75]),
-            correct + random.choice([1, -1, 2, -2, 3, -3, 5, -5, 10, -10])
+            correct + random.choice([1, -1, 2, -2, 3, -3, 5, -5, 10, -10, 15, -15])
         ])
         if isinstance(correct, float):
             choice = round(choice, 2)
@@ -29,7 +28,7 @@ def gen_distractors(correct, count=2, spread=0):
             distractors.add(choice)
         attempts += 1
     while len(distractors) < count:
-        distractors.add(correct + (len(distractors) + 1) * 2)
+        distractors.add(correct + (len(distractors) + 1) * 3)
     return list(distractors)[:count]
 
 def build_easy():
@@ -55,76 +54,77 @@ def build_easy():
         answer = random.randint(2, 12)
         a = b * answer
         prompt = f"{a} / {b} = ?"
-    return prompt, format_num(answer), "Core arithmetic", "Go step by step and check each operation."
+    return prompt, format_num(answer), "Arithmetic", "Calculate step by step."
 
 def build_middle():
     types = ["fraction", "power", "root"]
     t = random.choice(types)
     if t == "fraction":
-        denom = random.randint(2, 10)
-        base = random.randint(1, 9)
-        add = random.randint(1, 9)
+        denom = random.randint(5, 15)
+        base = random.randint(2, 12)
+        add = random.randint(2, 10)
         numer = base * denom + add
         value = numer / denom
-        return f"{numer} / {denom} = ? (decimal)", format_num(value), "Fractions to decimals", "Divide top by bottom."
+        return f"{numer} / {denom} = ? (decimal)", format_num(value), "Fractions", "Divide numerator by denominator."
     if t == "power":
-        base = random.randint(2, 9)
-        power = random.randint(2, 3)
+        base = random.randint(3, 12)
+        power = random.randint(2, 4)
         return f"{base}^{power} = ?", base ** power, "Exponents", "Multiply base by itself power times."
-    root = random.randint(2, 15)
-    return f"sqrt({root * root}) = ?", root, "Square roots", "What number squared gives the inside?"
+    root = random.randint(2, 30)
+    return f"sqrt({root * root}) = ?", root, "Square roots", "Find the number that squares to the value."
 
 def build_hard():
     types = ["linear", "percent", "ratio"]
     t = random.choice(types)
     if t == "linear":
-        x = random.randint(2, 15)
-        a = random.randint(2, 9)
-        b = random.randint(1, 20)
+        x = random.randint(3, 25)
+        a = random.randint(3, 15)
+        b = random.randint(10, 50)
         c = a * x + b
-        return f"Solve x: {a}x + {b} = {c}", x, "Linear equations", "Move constants, then divide."
+        return f"Solve for x: {a}x + {b} = {c}", x, "Linear equations", "Isolate x, then divide."
     if t == "percent":
-        pct = random.randint(5, 40)
-        total = random.randint(50, 400)
-        return f"{pct}% of {total} = ?", format_num((pct / 100) * total), "Percentages", "Convert % to decimal, multiply."
-    a = random.randint(2, 12)
-    b = random.randint(2, 12)
-    return f"If ratio is {a}:{b}, what is {a * 3}:? second value", b * 3, "Ratios", "Scale both by same number."
+        pct = random.randint(5, 75)
+        total = random.randint(100, 1000)
+        return f"{pct}% of {total} = ?", format_num((pct / 100) * total), "Percentages", "Multiply total by pct/100."
+    a = random.randint(3, 20)
+    b = random.randint(3, 20)
+    scale = random.randint(2, 6)
+    return f"If {a}:{b}, what is {a * scale}:?", b * scale, "Ratios", "Multiply both sides by the same number."
 
 def build_advanced():
     types = ["circle", "pythagorean", "quadratic"]
     t = random.choice(types)
     if t == "circle":
-        r = random.randint(2, 12)
-        return f"Area of circle r={r} (pi=3.14) = ?", format_num(3.14 * r * r), "Geometry (circle area)", "A = pi * r²"
+        r = random.randint(5, 25)
+        return f"Area of circle with radius {r} (pi=3.14) = ?", format_num(3.14 * r * r), "Circle area", "A = pi * r^2"
     if t == "pythagorean":
-        a = random.randint(3, 12)
-        b = random.randint(4, 13)
+        a = random.randint(6, 20)
+        b = random.randint(8, 30)
         c = (a * a + b * b) ** 0.5
-        return f"Right triangle legs {a}, {b}. Hypotenuse = ?", format_num(c), "Pythagorean theorem", "c = sqrt(a² + b²)"
-    x = random.randint(1, 10)
-    p = random.randint(1, 8)
-    q = random.randint(1, 8)
+        return f"Right triangle: legs {a} and {b}. Hypotenuse = ?", format_num(c), "Pythagorean theorem", "c = sqrt(a^2 + b^2)"
+    x = random.randint(2, 15)
+    p = random.randint(1, 12)
+    q = random.randint(1, 12)
     val = (x - p) * (x - q)
-    return f"Solve x: (x - {p})(x - {q}) = {val}", x, "Factored equations", "Try values satisfying each bracket."
+    return f"Solve (x - {p})(x - {q}) = {val}", x, "Factored equations", "Set each bracket to zero and solve."
 
 def build_calculus():
     types = ["derivative", "integral", "slope"]
     t = random.choice(types)
     if t == "derivative":
-        n = random.randint(2, 5)
-        x = random.randint(2, 6)
+        n = random.randint(3, 8)
+        x = random.randint(2, 10)
         ans = n * x ** (n - 1)
-        return f"d/dx of x^{n} at x={x} = ?", ans, "Derivatives", "Power rule: d/dx x^n = n*x^(n-1)"
+        return f"d/dx of x^{n} at x = {x}", ans, "Derivatives", "Power rule: n * x^(n-1)"
     if t == "integral":
-        a = random.randint(2, 9)
-        b = random.randint(1, 9)
+        a = random.randint(3, 15)
+        b = random.randint(5, 20)
         val = a / 2 + b
-        return f"Integral from 0 to 1 of ({a}x + {b}) dx = ?", format_num(val), "Definite integrals", "Integrate term by term."
-    x = random.randint(1, 8)
-    m = random.randint(2, 6)
-    c = random.randint(1, 9)
-    return f"Slope of y={m}x+{c} at x={x} is ?", m, "Slope", "y=mx+c, slope is always m."
+        return f"Integral 0 to 1 of ({a}x + {b}) dx", format_num(val), "Definite integrals", "Integrate then evaluate bounds."
+    m = random.randint(3, 12)
+    c = random.randint(2, 15)
+    x = random.randint(2, 10)
+    return f"Slope of y = {m}x + {c} at x = {x}", m, "Slope", "For y=mx+c, slope is constant m."
 
 BUILDERS = {
     "easy": build_easy,

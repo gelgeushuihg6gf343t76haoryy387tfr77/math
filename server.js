@@ -108,58 +108,61 @@ function buildEasy() {
 function buildMiddle() {
   const t = ["fraction", "power", "root"][rand(0, 2)];
   if (t === "fraction") {
-    const denom = rand(2, 10), base = rand(1, 9), add = rand(1, 9);
+    const denom = rand(5, 15), base = rand(2, 12), add = rand(2, 10);
     const numer = base * denom + add;
-    return { prompt: `${numer} / ${denom} = ? (decimal)`, answer: formatNum(numer / denom), topic: "Fractions to decimals", hint: "Divide top by bottom." };
+    return { prompt: `${numer} / ${denom} = ? (decimal)`, answer: formatNum(numer / denom), topic: "Fractions", hint: "Divide numerator by denominator." };
   }
   if (t === "power") {
-    const base = rand(2, 9), power = rand(2, 3);
-    return { prompt: `${base}^${power} = ?`, answer: base ** power, topic: "Exponents", hint: "Multiply base by itself." };
+    const base = rand(3, 12), power = rand(2, 4);
+    return { prompt: `${base}^${power} = ?`, answer: base ** power, topic: "Exponents", hint: "Multiply base by itself power times." };
   }
-  const root = rand(2, 15);
-  return { prompt: `sqrt(${root * root}) = ?`, answer: root, topic: "Square roots", hint: "What number squared?" };
+  const root = rand(2, 30);
+  return { prompt: `sqrt(${root * root}) = ?`, answer: root, topic: "Square roots", hint: "Find the number that squares to the value." };
 }
 
 function buildHard() {
   const t = ["linear", "percent", "ratio"][rand(0, 2)];
   if (t === "linear") {
-    const x = rand(2, 15), a = rand(2, 9), b = rand(1, 20);
-    return { prompt: `Solve x: ${a}x + ${b} = ${a * x + b}`, answer: x, topic: "Linear equations", hint: "Move constants, then divide." };
+    const x = rand(3, 25), a = rand(3, 15), b = rand(10, 50);
+    return { prompt: `Solve for x: ${a}x + ${b} = ${a * x + b}`, answer: x, topic: "Linear equations", hint: "Isolate x, then divide." };
   }
   if (t === "percent") {
-    const pct = rand(5, 40), total = rand(50, 400);
-    return { prompt: `${pct}% of ${total} = ?`, answer: formatNum((pct / 100) * total), topic: "Percentages", hint: "Convert % to decimal." };
+    const pct = rand(5, 75), total = rand(100, 1000);
+    return { prompt: `${pct}% of ${total} = ?`, answer: formatNum((pct / 100) * total), topic: "Percentages", hint: "Multiply total by pct/100." };
   }
-  const a = rand(2, 12), b = rand(2, 12);
-  return { prompt: `If ratio is ${a}:${b}, what is ${a * 3}:? second value`, answer: b * 3, topic: "Ratios", hint: "Scale both sides." };
+  const a = rand(3, 20), b = rand(3, 20), scale = rand(2, 6);
+  return { prompt: `If ${a}:${b}, what is ${a * scale}:?`, answer: b * scale, topic: "Ratios", hint: "Multiply both sides by the same number." };
 }
 
 function buildAdvanced() {
   const t = ["circle", "pythagorean", "quadratic"][rand(0, 2)];
   if (t === "circle") {
-    const r = rand(2, 12);
-    return { prompt: `Area of circle r=${r} (pi=3.14) = ?`, answer: formatNum(3.14 * r * r), topic: "Geometry (circle area)", hint: "A = pi * r²" };
+    const r = rand(5, 25);
+    return { prompt: `Area of circle with radius ${r} (pi=3.14) = ?`, answer: formatNum(3.14 * r * r), topic: "Circle area", hint: "A = pi * r^2" };
   }
   if (t === "pythagorean") {
-    const a = rand(3, 12), b = rand(4, 13);
-    return { prompt: `Right triangle legs ${a}, ${b}. Hypotenuse = ?`, answer: formatNum(Math.sqrt(a * a + b * b)), topic: "Pythagorean theorem", hint: "c = sqrt(a² + b²)" };
+    const a = rand(6, 20), b = rand(8, 30);
+    const c = Math.sqrt(a * a + b * b);
+    return { prompt: `Right triangle: legs ${a} and ${b}. Hypotenuse = ?`, answer: formatNum(c), topic: "Pythagorean theorem", hint: "c = sqrt(a^2 + b^2)" };
   }
-  const x = rand(1, 10), p = rand(1, 8), q = rand(1, 8);
-  return { prompt: `Solve x: (x - ${p})(x - ${q}) = ${(x - p) * (x - q)}`, answer: x, topic: "Factored equations", hint: "Try values satisfying each bracket." };
+  const x = rand(2, 15), p = rand(1, 12), q = rand(1, 12);
+  const val = (x - p) * (x - q);
+  return { prompt: `Solve (x - ${p})(x - ${q}) = ${val}`, answer: x, topic: "Factored equations", hint: "Set each bracket to zero and solve." };
 }
 
 function buildCalculus() {
   const t = ["derivative", "integral", "slope"][rand(0, 2)];
   if (t === "derivative") {
-    const n = rand(2, 5), x = rand(2, 6);
-    return { prompt: `d/dx of x^${n} at x=${x} = ?`, answer: n * x ** (n - 1), topic: "Derivatives", hint: "Power rule: d/dx x^n = n*x^(n-1)" };
+    const n = rand(3, 8), x = rand(2, 10);
+    const ans = n * x ** (n - 1);
+    return { prompt: `d/dx of x^${n} at x = ${x}`, answer: ans, topic: "Derivatives", hint: "Power rule: n * x^(n-1)" };
   }
   if (t === "integral") {
-    const a = rand(2, 9), b = rand(1, 9);
-    return { prompt: `Integral from 0 to 1 of (${a}x + ${b}) dx = ?`, answer: formatNum(a / 2 + b), topic: "Definite integrals", hint: "Integrate term by term." };
+    const a = rand(3, 15), b = rand(5, 20);
+    return { prompt: `Integral 0 to 1 of (${a}x + ${b}) dx`, answer: formatNum(a / 2 + b), topic: "Definite integrals", hint: "Integrate then evaluate bounds." };
   }
-  const m = rand(2, 6), c = rand(1, 9), x = rand(1, 8);
-  return { prompt: `Slope of y=${m}x+${c} at x=${x} is ?`, answer: m, topic: "Slope", hint: "y=mx+c, slope is always m." };
+  const m = rand(3, 12), c = rand(2, 15), x = rand(2, 10);
+  return { prompt: `Slope of y = ${m}x + ${c} at x = ${x}`, answer: m, topic: "Slope", hint: "For y=mx+c, slope is constant m." };
 }
 
 let hasPython = false;
