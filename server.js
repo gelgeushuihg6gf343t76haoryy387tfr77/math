@@ -135,7 +135,7 @@ function buildHard() {
 }
 
 function buildAdvanced() {
-  const t = ["circle", "pythagorean", "quadratic"][rand(0, 2)];
+  const t = ["circle", "pythagorean", "quadratic", "slope"][rand(0, 3)];
   if (t === "circle") {
     const r = rand(5, 25);
     return { prompt: `Area of circle with radius ${r} (pi=3.14) = ?`, answer: formatNum(3.14 * r * r), topic: "Circle area", hint: "A = pi * r^2" };
@@ -145,24 +145,24 @@ function buildAdvanced() {
     const c = Math.sqrt(a * a + b * b);
     return { prompt: `Right triangle: legs ${a} and ${b}. Hypotenuse = ?`, answer: formatNum(c), topic: "Pythagorean theorem", hint: "c = sqrt(a^2 + b^2)" };
   }
-  const x = rand(2, 15), p = rand(1, 12), q = rand(1, 12);
-  const val = (x - p) * (x - q);
-  return { prompt: `Solve (x - ${p})(x - ${q}) = ${val}`, answer: x, topic: "Factored equations", hint: "Set each bracket to zero and solve." };
+  if (t === "quadratic") {
+    const x = rand(2, 15), p = rand(1, 12), q = rand(1, 12);
+    const val = (x - p) * (x - q);
+    return { prompt: `Solve (x - ${p})(x - ${q}) = ${val}`, answer: x, topic: "Factored equations", hint: "Set each bracket to zero and solve." };
+  }
+  const m = rand(4, 15), c = rand(3, 20), x = rand(3, 15);
+  return { prompt: `Slope of y = ${m}x + ${c} at x = ${x}`, answer: m, topic: "Slope", hint: "For y=mx+c, slope is constant m." };
 }
 
 function buildCalculus() {
-  const t = ["derivative", "integral", "slope"][rand(0, 2)];
+  const t = ["derivative", "integral"][rand(0, 1)];
   if (t === "derivative") {
     const n = rand(3, 8), x = rand(2, 10);
     const ans = n * x ** (n - 1);
     return { prompt: `d/dx of x^${n} at x = ${x}`, answer: ans, topic: "Derivatives", hint: "Power rule: n * x^(n-1)" };
   }
-  if (t === "integral") {
-    const a = rand(3, 15), b = rand(5, 20);
-    return { prompt: `Integral 0 to 1 of (${a}x + ${b}) dx`, answer: formatNum(a / 2 + b), topic: "Definite integrals", hint: "Integrate then evaluate bounds." };
-  }
-  const m = rand(3, 12), c = rand(2, 15), x = rand(2, 10);
-  return { prompt: `Slope of y = ${m}x + ${c} at x = ${x}`, answer: m, topic: "Slope", hint: "For y=mx+c, slope is constant m." };
+  const a = rand(3, 15), b = rand(5, 20);
+  return { prompt: `Integral 0 to 1 of (${a}x + ${b}) dx`, answer: formatNum(a / 2 + b), topic: "Definite integrals", hint: "Integrate then evaluate bounds." };
 }
 
 let hasPython = false;

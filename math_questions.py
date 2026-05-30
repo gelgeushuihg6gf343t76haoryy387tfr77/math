@@ -92,7 +92,7 @@ def build_hard():
     return f"If {a}:{b}, what is {a * scale}:?", b * scale, "Ratios", "Multiply both sides by the same number."
 
 def build_advanced():
-    types = ["circle", "pythagorean", "quadratic"]
+    types = ["circle", "pythagorean", "quadratic", "slope"]
     t = random.choice(types)
     if t == "circle":
         r = random.randint(5, 25)
@@ -102,29 +102,29 @@ def build_advanced():
         b = random.randint(8, 30)
         c = (a * a + b * b) ** 0.5
         return f"Right triangle: legs {a} and {b}. Hypotenuse = ?", format_num(c), "Pythagorean theorem", "c = sqrt(a^2 + b^2)"
-    x = random.randint(2, 15)
-    p = random.randint(1, 12)
-    q = random.randint(1, 12)
-    val = (x - p) * (x - q)
-    return f"Solve (x - {p})(x - {q}) = {val}", x, "Factored equations", "Set each bracket to zero and solve."
+    if t == "quadratic":
+        x = random.randint(2, 15)
+        p = random.randint(1, 12)
+        q = random.randint(1, 12)
+        val = (x - p) * (x - q)
+        return f"Solve (x - {p})(x - {q}) = {val}", x, "Factored equations", "Set each bracket to zero and solve."
+    m = random.randint(4, 15)
+    c = random.randint(3, 20)
+    x = random.randint(3, 15)
+    return f"Slope of y = {m}x + {c} at x = {x}", m, "Slope", "For y=mx+c, slope is constant m."
 
 def build_calculus():
-    types = ["derivative", "integral", "slope"]
+    types = ["derivative", "integral"]
     t = random.choice(types)
     if t == "derivative":
         n = random.randint(3, 8)
         x = random.randint(2, 10)
         ans = n * x ** (n - 1)
         return f"d/dx of x^{n} at x = {x}", ans, "Derivatives", "Power rule: n * x^(n-1)"
-    if t == "integral":
-        a = random.randint(3, 15)
-        b = random.randint(5, 20)
-        val = a / 2 + b
-        return f"Integral 0 to 1 of ({a}x + {b}) dx", format_num(val), "Definite integrals", "Integrate then evaluate bounds."
-    m = random.randint(3, 12)
-    c = random.randint(2, 15)
-    x = random.randint(2, 10)
-    return f"Slope of y = {m}x + {c} at x = {x}", m, "Slope", "For y=mx+c, slope is constant m."
+    a = random.randint(3, 15)
+    b = random.randint(5, 20)
+    val = a / 2 + b
+    return f"Integral 0 to 1 of ({a}x + {b}) dx", format_num(val), "Definite integrals", "Integrate then evaluate bounds."
 
 BUILDERS = {
     "easy": build_easy,
