@@ -1,6 +1,7 @@
 import random
 import json
 import sys
+import math
 
 def format_num(value):
     if isinstance(value, float):
@@ -92,39 +93,43 @@ def build_hard():
     return f"If {a}:{b}, what is {a * scale}:?", b * scale, "Ratios", "Multiply both sides by the same number."
 
 def build_advanced():
-    types = ["circle", "pythagorean", "quadratic", "slope"]
+    types = ["circle", "sphere", "trig", "log"]
     t = random.choice(types)
     if t == "circle":
         r = random.randint(5, 25)
-        return f"Area of circle with radius {r} (pi=3.14) = ?", format_num(3.14 * r * r), "Circle area", "A = pi * r^2"
-    if t == "pythagorean":
-        a = random.randint(6, 20)
-        b = random.randint(8, 30)
-        c = (a * a + b * b) ** 0.5
-        return f"Right triangle: legs {a} and {b}. Hypotenuse = ?", format_num(c), "Pythagorean theorem", "c = sqrt(a^2 + b^2)"
-    if t == "quadratic":
-        x = random.randint(2, 15)
-        p = random.randint(1, 12)
-        q = random.randint(1, 12)
-        val = (x - p) * (x - q)
-        return f"Solve (x - {p})(x - {q}) = {val}", x, "Factored equations", "Set each bracket to zero and solve."
-    m = random.randint(4, 15)
-    c = random.randint(3, 20)
-    x = random.randint(3, 15)
-    return f"Slope of y = {m}x + {c} at x = {x}", m, "Slope", "For y=mx+c, slope is constant m."
+        area = 3.14 * r * r
+        return f"Area of circle radius {r} (π ≈ 3.14)", format_num(area), "Circle area", "A = πr²"
+    if t == "sphere":
+        r = random.randint(3, 10)
+        vol = 4.1867 * r * r * r
+        return f"Volume of sphere radius {r} (4/3 π r³)", format_num(vol), "Sphere volume", "V = 4/3 π r³"
+    if t == "trig":
+        angles = [30, 45, 60]
+        angle = random.choice(angles)
+        name = random.choice(["sin", "cos", "tan"])
+        vals = {"sin": {30: 0.5, 45: 0.71, 60: 0.87}, "cos": {30: 0.87, 45: 0.71, 60: 0.5}, "tan": {30: 0.58, 45: 1, 60: 1.73}}
+        return f"{name}({angle}°) = ?", vals[name][angle], "Trigonometry", "Use the unit circle."
+    bases = {2: [8, 16, 32, 64], 10: [100, 1000, 10000], 5: [25, 125, 625]}
+    base = random.choice(list(bases.keys()))
+    v = random.choice(bases[base])
+    ans = round(math.log(v) / math.log(base))
+    return f"log_{base}({v}) = ?", ans, "Logarithms", "What power of the base gives the number?"
 
 def build_calculus():
-    types = ["derivative", "integral"]
+    types = ["derivative", "integral", "tangent"]
     t = random.choice(types)
     if t == "derivative":
         n = random.randint(3, 8)
         x = random.randint(2, 10)
         ans = n * x ** (n - 1)
-        return f"d/dx of x^{n} at x = {x}", ans, "Derivatives", "Power rule: n * x^(n-1)"
-    a = random.randint(3, 15)
-    b = random.randint(5, 20)
-    val = a / 2 + b
-    return f"Integral 0 to 1 of ({a}x + {b}) dx", format_num(val), "Definite integrals", "Integrate then evaluate bounds."
+        return f"d/dx of x^{n} at x = {x}", ans, "Power rule", "n · x^(n-1)"
+    if t == "integral":
+        a = random.randint(3, 15)
+        b = random.randint(5, 20)
+        val = a / 2 + b
+        return f"∫₀¹ ({a}x + {b}) dx", format_num(val), "Definite integral", "Integrate then evaluate bounds."
+    x = random.randint(2, 8)
+    return f"Slope of tangent to y = x² at x = {x}", 2 * x, "Tangent slope", "Derivative of x² is 2x."
 
 BUILDERS = {
     "easy": build_easy,
