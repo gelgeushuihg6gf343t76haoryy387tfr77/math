@@ -162,10 +162,19 @@ function buildCalculus() {
   return { prompt: `Slope of y=${m}x+${c} at x=${x} is ?`, answer: m, topic: "Slope", hint: "y=mx+c, slope is always m." };
 }
 
+let hasPython = false;
+try {
+  const test = spawnSync("python3", ["--version"], { encoding: "utf-8", timeout: 2000 });
+  hasPython = test.status === 0 && !test.error;
+} catch { hasPython = false; }
+if (hasPython) console.log("Python detected, using math_questions.py");
+else console.log("No Python, using JS fallback");
+
 function callPython(mode) {
+  if (!hasPython) return null;
   try {
     const py = spawnSync("python3", [path.join(__dirname, "math_questions.py"), mode], {
-      encoding: "utf-8", timeout: 5000
+      encoding: "utf-8", timeout: 2000
     });
     if (py.error || py.status !== 0) return null;
     return JSON.parse(py.stdout);
