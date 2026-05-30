@@ -8,6 +8,19 @@
   </head>
   <body>
     <div class="page-bg"></div>
+
+    <div id="gameOverOverlay" class="game-over-overlay">
+      <div class="game-over-card">
+        <h2>Game Over</h2>
+        <div class="go-stats">
+          <p>Score: <span id="gameOverScore">0</span></p>
+          <p>Best Streak: <span id="gameOverStreak">0</span></p>
+          <p>Mode: <span id="gameOverMode">Easy</span></p>
+        </div>
+        <button id="tryAgainBtn" class="go-btn">Try Again</button>
+      </div>
+    </div>
+
     <main class="app-shell">
       <header class="hero">
         <div>
@@ -19,7 +32,7 @@
       <section class="card control-card">
         <div class="control-head">
           <h3>Mode Selection</h3>
-          <button id="themeToggleBtn" class="secondary">Switch to Light Mode</button>
+          <button id="themeToggleBtn" class="secondary">Light Mode</button>
         </div>
         <div id="modeButtons" class="mode-grid">
           <button class="mode-btn active" data-mode="easy">Easy (Grade 1-4)</button>
@@ -34,7 +47,7 @@
         <label for="username">Student Name</label>
         <div class="row">
           <input id="username" placeholder="Type your name..." maxlength="20" />
-          <button id="startBtn">Start</button>
+          <button id="startBtn" class="start-btn">▶ Start</button>
           <button id="saveBtn" class="secondary">Save</button>
           <button id="loadBtn" class="secondary">Load</button>
         </div>
@@ -44,7 +57,7 @@
         <article class="card"><h3>Score</h3><p id="score">0</p></article>
         <article class="card"><h3>Mode</h3><p id="mode">Easy</p></article>
         <article class="card"><h3>Streak</h3><p id="streak">0</p></article>
-        <article class="card"><h3>Lives</h3><p id="lives">3</p></article>
+        <article class="card"><h3>Lives <span id="livesContainer">❤️❤️❤️</span></h3><p id="lives">3</p></article>
       </section>
 
       <section class="card question-card">
@@ -52,7 +65,7 @@
         <p id="topicText" class="topic">Topic: -</p>
         <div id="choicesWrap" class="choices-grid"></div>
         <div class="row">
-          <button id="hintBtn" class="secondary">Hint</button>
+          <button id="hintBtn" class="secondary">💡 Hint</button>
         </div>
         <p id="message" class="message"></p>
       </section>

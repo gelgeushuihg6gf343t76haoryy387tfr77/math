@@ -28,6 +28,13 @@ const saveBtn = document.getElementById("saveBtn");
 const loadBtn = document.getElementById("loadBtn");
 const choicesWrap = document.getElementById("choicesWrap");
 const questionCard = document.querySelector(".question-card");
+const gameOverOverlay = document.getElementById("gameOverOverlay");
+const gameOverScore = document.getElementById("gameOverScore");
+const gameOverStreak = document.getElementById("gameOverStreak");
+const gameOverMode = document.getElementById("gameOverMode");
+const tryAgainBtn = document.getElementById("tryAgainBtn");
+const mainContent = document.querySelector(".app-shell");
+const livesContainer = document.getElementById("livesContainer");
 
 const modeLabels = {
   easy: "Easy", middle: "Middle", hard: "Hard",
@@ -46,6 +53,7 @@ function renderStats() {
   scoreEl.textContent = String(state.score);
   modeEl.textContent = modeLabels[state.mode] || "Easy";
   streakEl.textContent = String(state.streak);
+  livesContainer.textContent = "❤️".repeat(Math.max(0, state.lives));
   livesEl.textContent = String(state.lives);
   goalProgressEl.value = state.solvedToday;
   goalTextEl.textContent = `${state.solvedToday} / 10 done`;
@@ -55,6 +63,32 @@ function animateEl(el, cls) {
   el.classList.remove(cls);
   void el.offsetWidth;
   el.classList.add(cls);
+}
+
+function spawnParticles(x, y) {
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    p.style.setProperty("--dx", (Math.random() - 0.5) * 120 + "px");
+    p.style.setProperty("--dy", -(Math.random() * 100 + 50) + "px");
+    p.style.background = ["#15a34a", "#3b82f6", "#eab308", "#f97316"][Math.floor(Math.random() * 4)];
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+function showGameOver() {
+  gameOverScore.textContent = state.score;
+  gameOverStreak.textContent = state.streak;
+  gameOverMode.textContent = modeLabels[state.mode];
+  gameOverOverlay.classList.add("show");
+  animateEl(gameOverOverlay, "overlay-in");
+}
+
+function hideGameOver() {
+  gameOverOverlay.classList.remove("show");
 }
 
 function saveLocalState() {
@@ -82,12 +116,10 @@ function loadLocalState() {
     renderStats();
     if (saved.isLightMode) {
       document.body.classList.add("light-mode");
-      themeToggleBtn.textContent = "Switch to Dark Mode";
+      themeToggleBtn.textContent = "Dark Mode";
     }
     return true;
-  } catch (_error) {
-    return false;
-  }
+  } catch { return false; }
 }
 
 function setMessage(text, type = "info") {
@@ -156,23 +188,18 @@ function handleChoice(letter) {
         state.solvedToday += 1;
         setMessage(`Correct! +${points} pts`, "success");
         animateEl(scoreEl, "score-pop");
+        const rect = scoreEl.getBoundingClientRect();
+        spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
       } else {
         state.lives -= 1;
         state.streak = 0;
         setMessage(`Nope. Answer was ${result.correct_letter}: ${result.answer}`, "error");
+        animateEl(livesContainer, "life-lost");
       }
 
       if (state.lives <= 0) {
-        setMessage("Game over! Lives reset. Keep practicing!", "error");
         saveProgress().then(() => {
-          state.lives = 3;
-          state.streak = 0;
-          state.score = Math.max(0, state.score - 20);
-          renderStats();
-          setTimeout(() => {
-            resetChoices();
-            getQuestion();
-          }, 1200);
+          showGameOver();
         });
         return;
       }
@@ -202,12 +229,24 @@ function showHint() {
   setMessage(`Hint: ${hint}`, "info");
 }
 
+function tryAgain() {
+  hideGameOver();
+  state.lives = 3;
+  state.streak = 0;
+  state.score = Math.max(0, state.score - 20);
+  renderStats();
+  setMessage("Try again! You got this 💪", "info");
+  resetChoices();
+  getQuestion();
+}
+
 async function startGame() {
   const username = usernameEl.value.trim();
   if (!username) {
     setMessage("Please enter your name first.", "warn");
     return;
   }
+  hideGameOver();
   const restored = await loadProgressByUsername(username);
   if (!restored) {
     state.username = username;
@@ -300,7 +339,7 @@ function initModeButtons() {
 function toggleTheme() {
   const body = document.body;
   const isLight = body.classList.toggle("light-mode");
-  themeToggleBtn.textContent = isLight ? "Switch to Dark Mode" : "Switch to Light Mode";
+  themeToggleBtn.textContent = isLight ? "Dark Mode" : "Light Mode";
   saveLocalState();
 }
 
@@ -331,7 +370,7 @@ async function handleManualLoad() {
       await getQuestion();
       return;
     }
-    setMessage("No saved progress found yet for this student.", "warn");
+    setMessage("No saved progress found yet.", "warn");
     return;
   }
   setMessage("Saved progress loaded from backend.", "success");
@@ -343,6 +382,7 @@ hintBtn.addEventListener("click", showHint);
 themeToggleBtn.addEventListener("click", toggleTheme);
 saveBtn.addEventListener("click", handleManualSave);
 loadBtn.addEventListener("click", handleManualLoad);
+tryAgainBtn.addEventListener("click", tryAgain);
 
 initModeButtons();
 renderStats();

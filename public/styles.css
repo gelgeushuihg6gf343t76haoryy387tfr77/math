@@ -213,6 +213,22 @@ button.secondary {
   transition: transform 0.2s ease;
 }
 
+#livesContainer {
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  display: inline-block;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #15a34a, #166534) !important;
+  padding: 11px 20px;
+  font-size: 1rem;
+}
+
+.start-btn:hover {
+  box-shadow: 0 0 20px rgba(21, 163, 74, 0.4) !important;
+}
+
 .question-card h2 {
   margin-top: 0;
   font-size: 1.4rem;
@@ -426,7 +442,110 @@ li + li {
   animation: msg-pop 0.25s ease both;
 }
 
-@media (max-width: 800px) {
+@keyframes msg-pop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-pop {
+  animation: msg-pop 0.25s ease both;
+}
+
+@keyframes life-lost {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.4); color: var(--bad); }
+  50% { transform: scale(1.4); color: var(--bad); }
+  100% { transform: scale(1); }
+}
+
+.life-lost {
+  animation: life-lost 0.5s ease;
+}
+
+.particle {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999;
+  animation: particle-fly 0.8s ease-out forwards;
+}
+
+@keyframes particle-fly {
+  to {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+}
+
+.game-over-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  justify-content: center;
+  align-items: center;
+}
+
+.game-over-overlay.show {
+  display: flex;
+}
+
+.game-over-card {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  min-width: 300px;
+  box-shadow: 0 0 60px rgba(220, 38, 38, 0.2);
+  animation: overlay-in 0.4s ease both;
+}
+
+.game-over-card h2 {
+  font-size: 2.2rem;
+  margin: 0 0 16px;
+  color: var(--bad);
+  text-shadow: 0 0 30px rgba(220, 38, 38, 0.3);
+}
+
+.go-stats p {
+  font-size: 1.1rem;
+  margin: 8px 0;
+  color: var(--subtext);
+}
+
+.go-stats span {
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+.go-btn {
+  margin-top: 24px;
+  padding: 14px 48px;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 14px;
+  cursor: pointer;
+  color: white;
+  font-weight: 800;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.go-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
