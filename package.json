@@ -1,0 +1,22 @@
+{
+  "name": "math-owl-quest",
+  "version": "1.0.0",
+  "description": "Colorful math learning game for students with frontend and backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "math",
+    "education",
+    "game",
+    "school-project"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
