@@ -12,6 +12,7 @@ const state = {
 const scoreEl = document.getElementById("score");
 const modeEl = document.getElementById("mode");
 const streakEl = document.getElementById("streak");
+const streakBadgeEl = document.getElementById("streakBadge");
 const livesEl = document.getElementById("lives");
 const questionTextEl = document.getElementById("questionText");
 const topicTextEl = document.getElementById("topicText");
@@ -47,19 +48,29 @@ const modeRanks = {
   easy: 1, middle: 2, hard: 3, advanced: 4, calculus: 5
 };
 
+function getStreakBadge(streak) {
+  if (streak >= 5) return { text: "ON FIRE", cls: "badge-fire" };
+  if (streak >= 3) return { text: "GOLD", cls: "badge-gold" };
+  if (streak >= 2) return { text: "SILVER", cls: "badge-silver" };
+  if (streak >= 1) return { text: "BRONZE", cls: "badge-bronze" };
+  return null;
+}
+
 function renderStats() {
   scoreEl.textContent = String(state.score);
   modeEl.textContent = modeLabels[state.mode] || "Easy";
   streakEl.textContent = String(state.streak);
+  const badge = getStreakBadge(state.streak);
+  if (badge) {
+    streakBadgeEl.textContent = badge.text;
+    streakBadgeEl.className = "streak-badge " + badge.cls;
+  } else {
+    streakBadgeEl.textContent = "";
+    streakBadgeEl.className = "streak-badge";
+  }
   livesEl.textContent = String(state.lives);
   goalProgressEl.value = state.solvedToday;
   goalTextEl.textContent = `${state.solvedToday} / 10`;
-}
-
-function animateEl(el, cls) {
-  el.classList.remove(cls);
-  void el.offsetWidth;
-  el.classList.add(cls);
 }
 
 function showGameOver() {
@@ -167,15 +178,16 @@ function handleChoice(letter) {
       } else {
         state.lives -= 1;
         state.streak = 0;
-        setMessage(`${result.correct_letter}: ${result.answer}`);
+        setMessage(`Answer: ${result.correct_letter} = ${result.answer}`);
       }
+
+      renderStats();
 
       if (state.lives <= 0) {
         saveProgress().then(() => showGameOver());
         return;
       }
 
-      renderStats();
       saveProgress().then(() => {
         loadLeaderboard();
         setTimeout(() => {
@@ -195,7 +207,9 @@ function resetChoices() {
 
 function showHint() {
   if (!state.currentQuestion) return;
-  setMessage(state.currentQuestion.hint || "Break into steps.");
+  const h = state.currentQuestion.hint || "Break the problem into smaller steps.";
+  const t = state.currentQuestion.topic || "";
+  setMessage(`[${t}] ${h}`);
 }
 
 function tryAgain() {
@@ -225,7 +239,7 @@ async function startGame() {
     state.solvedToday = 0;
   }
   renderStats();
-  setMessage(restored ? `Welcome back.` : `Started.`);
+  setMessage(restored ? `Welcome back, ${state.username}.` : `Started, ${state.username}.`);
   await saveProgress();
   await getQuestion();
   await loadLeaderboard();
@@ -233,49 +247,55 @@ async function startGame() {
 
 async function saveProgress() {
   if (!state.username) return;
-  await fetch("/api/progress", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: state.username, score: state.score,
-      level: modeRanks[state.mode], mode: state.mode,
-      streak: state.streak, lives: state.lives, solvedToday: state.solvedToday
-    })
-  });
-  saveLocalState();
+  try {
+    await fetch("/api/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: state.username, score: state.score,
+        level: modeRanks[state.mode], mode: state.mode,
+        streak: state.streak, lives: state.lives, solvedToday: state.solvedToday
+      })
+    });
+    saveLocalState();
+  } catch {}
 }
 
 async function loadProgressByUsername(username) {
   if (!username) return false;
-  const res = await fetch(`/api/profile/${encodeURIComponent(username)}`);
-  if (!res.ok) return false;
-  const data = await res.json();
-  const profile = data.profile || {};
-  state.username = username;
-  state.score = Number(profile.currentScore ?? profile.bestScore) || 0;
-  state.streak = Number(profile.currentStreak ?? profile.bestStreak) || 0;
-  state.lives = Number(profile.currentLives) || 3;
-  state.solvedToday = Number(profile.currentSolvedToday) || 0;
-  state.mode = modeLabels[profile.currentMode] ? profile.currentMode : "easy";
-  setMode(state.mode);
-  renderStats();
-  saveLocalState();
-  return true;
+  try {
+    const res = await fetch(`/api/profile/${encodeURIComponent(username)}`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    const profile = data.profile || {};
+    state.username = username;
+    state.score = Number(profile.currentScore ?? profile.bestScore) || 0;
+    state.streak = Number(profile.currentStreak ?? profile.bestStreak) || 0;
+    state.lives = Number(profile.currentLives) || 3;
+    state.solvedToday = Number(profile.currentSolvedToday) || 0;
+    state.mode = modeLabels[profile.currentMode] ? profile.currentMode : "easy";
+    setMode(state.mode);
+    renderStats();
+    saveLocalState();
+    return true;
+  } catch { return false; }
 }
 
 async function loadLeaderboard() {
-  const res = await fetch("/api/leaderboard");
-  const data = await res.json();
-  leaderboardEl.innerHTML = "";
-  if (!data.leaderboard.length) {
-    leaderboardEl.innerHTML = "<li>No scores yet.</li>";
-    return;
-  }
-  data.leaderboard.forEach((entry, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${entry.username} - ${entry.score}`;
-    leaderboardEl.appendChild(li);
-  });
+  try {
+    const res = await fetch("/api/leaderboard");
+    const data = await res.json();
+    leaderboardEl.innerHTML = "";
+    if (!data.leaderboard.length) {
+      leaderboardEl.innerHTML = "<li>No scores yet.</li>";
+      return;
+    }
+    data.leaderboard.forEach((entry) => {
+      const li = document.createElement("li");
+      li.textContent = `${entry.username} - ${entry.score}`;
+      leaderboardEl.appendChild(li);
+    });
+  } catch {}
 }
 
 function setMode(mode) {
@@ -307,36 +327,30 @@ function toggleTheme() {
 
 async function handleManualSave() {
   if (!state.username) {
-    const username = usernameEl.value.trim();
-    if (!username) {
-      setMessage("Enter your name first.");
-      return;
-    }
-    state.username = username;
+    const name = usernameEl.value.trim();
+    if (!name) { setMessage("Enter your name first."); return; }
+    state.username = name;
   }
   await saveProgress();
-  setMessage("Saved.");
+  setMessage("Progress saved to server.");
 }
 
 async function handleManualLoad() {
-  const username = usernameEl.value.trim() || state.username;
-  if (!username) {
-    setMessage("Enter your name first.");
-    return;
-  }
-  const loaded = await loadProgressByUsername(username);
-  if (!loaded) {
-    const hasLocal = loadLocalState();
-    if (hasLocal) {
-      setMessage("Loaded.");
+  const name = usernameEl.value.trim() || state.username;
+  if (!name) { setMessage("Enter your name first."); return; }
+  const loaded = await loadProgressByUsername(name);
+  if (loaded) {
+    setMessage("Loaded from server.");
+    await getQuestion();
+  } else {
+    const local = loadLocalState();
+    if (local) {
+      setMessage("Loaded from local storage.");
       await getQuestion();
-      return;
+    } else {
+      setMessage("No saved data for \"" + name + "\".");
     }
-    setMessage("No saved data.");
-    return;
   }
-  setMessage("Loaded.");
-  await getQuestion();
 }
 
 startBtn.addEventListener("click", startGame);

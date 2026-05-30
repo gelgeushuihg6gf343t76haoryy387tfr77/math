@@ -96,13 +96,13 @@ function buildChoices(answer) {
 function buildEasy() {
   const ops = ["+", "-", "*", "/"];
   const op = ops[rand(0, 3)];
-  let a, b, answer;
-  if (op === "+") { a = rand(1, 40); b = rand(1, 40); answer = a + b; }
-  else if (op === "-") { a = rand(10, 50); b = rand(1, a); answer = a - b; }
-  else if (op === "*") { a = rand(2, 12); b = rand(2, 12); answer = a * b; }
-  else { b = rand(2, 12); answer = rand(2, 12); a = b * answer; }
+  let a, b, answer, hint;
+  if (op === "+") { a = rand(1, 40); b = rand(1, 40); answer = a + b; hint = `${a} + ${b} = `; }
+  else if (op === "-") { a = rand(10, 50); b = rand(1, a); answer = a - b; hint = `${a} - ${b} = `; }
+  else if (op === "*") { a = rand(2, 12); b = rand(2, 12); answer = a * b; hint = `${a} × ${b} = `; }
+  else { b = rand(2, 12); answer = rand(2, 12); a = b * answer; hint = `${a} ÷ ${b} = `; }
   const symbol = op === "*" ? "x" : op;
-  return { prompt: `${a} ${symbol} ${b} = ?`, answer, topic: "Core arithmetic", hint: "Go step by step." };
+  return { prompt: `${a} ${symbol} ${b} = ?`, answer, topic: "Arithmetic", hint };
 }
 
 function buildMiddle() {
@@ -110,28 +110,31 @@ function buildMiddle() {
   if (t === "fraction") {
     const denom = rand(5, 15), base = rand(2, 12), add = rand(2, 10);
     const numer = base * denom + add;
-    return { prompt: `${numer} / ${denom} = ? (decimal)`, answer: formatNum(numer / denom), topic: "Fractions", hint: "Divide numerator by denominator." };
+    const val = numer / denom;
+    return { prompt: `${numer} / ${denom} = ? (decimal)`, answer: formatNum(val), topic: "Fractions", hint: `Divide ${numer} by ${denom}` };
   }
   if (t === "power") {
     const base = rand(3, 12), power = rand(2, 4);
-    return { prompt: `${base}^${power} = ?`, answer: base ** power, topic: "Exponents", hint: "Multiply base by itself power times." };
+    const ans = base ** power;
+    return { prompt: `${base}^${power} = ?`, answer: ans, topic: "Exponents", hint: `${base} × ${base} ${power > 2 ? "× " + base + (power > 3 ? " × " + base : "") : ""} = ` };
   }
   const root = rand(2, 30);
-  return { prompt: `sqrt(${root * root}) = ?`, answer: root, topic: "Square roots", hint: "Find the number that squares to the value." };
+  return { prompt: `sqrt(${root * root}) = ?`, answer: root, topic: "Square roots", hint: `√${root * root} = ? → ${root} × ${root} = ${root * root}` };
 }
 
 function buildHard() {
   const t = ["linear", "percent", "ratio"][rand(0, 2)];
   if (t === "linear") {
     const x = rand(3, 25), a = rand(3, 15), b = rand(10, 50);
-    return { prompt: `Solve for x: ${a}x + ${b} = ${a * x + b}`, answer: x, topic: "Linear equations", hint: "Isolate x, then divide." };
+    const c = a * x + b;
+    return { prompt: `Solve for x: ${a}x + ${b} = ${c}`, answer: x, topic: "Linear equations", hint: `${a}x + ${b} = ${c} → ${a}x = ${c} - ${b} = ${c - b} → x = ${c - b} ÷ ${a}` };
   }
   if (t === "percent") {
     const pct = rand(5, 75), total = rand(100, 1000);
-    return { prompt: `${pct}% of ${total} = ?`, answer: formatNum((pct / 100) * total), topic: "Percentages", hint: "Multiply total by pct/100." };
+    return { prompt: `${pct}% of ${total} = ?`, answer: formatNum((pct / 100) * total), topic: "Percentages", hint: `${total} × ${pct} ÷ 100 = ` };
   }
   const a = rand(3, 20), b = rand(3, 20), scale = rand(2, 6);
-  return { prompt: `If ${a}:${b}, what is ${a * scale}:?`, answer: b * scale, topic: "Ratios", hint: "Multiply both sides by the same number." };
+  return { prompt: `If ${a}:${b}, what is ${a * scale}:?`, answer: b * scale, topic: "Ratios", hint: `${a}:${b} = ${a * scale}:? → ? = ${b} × ${scale}` };
 }
 
 function buildAdvanced() {
@@ -139,12 +142,12 @@ function buildAdvanced() {
   if (t === "circle") {
     const r = rand(5, 25);
     const area = 3.14 * r * r;
-    return { prompt: `Area of circle radius ${r} (π ≈ 3.14)`, answer: formatNum(area), topic: "Circle area", hint: "A = πr²" };
+    return { prompt: `Area of circle radius ${r} (π ≈ 3.14)`, answer: formatNum(area), topic: "Circle area", hint: `A = πr² = 3.14 × ${r}² = 3.14 × ${r * r}` };
   }
   if (t === "sphere") {
     const r = rand(3, 10);
     const vol = 4.1867 * r * r * r;
-    return { prompt: `Volume of sphere radius ${r} (4/3 π r³)`, answer: formatNum(vol), topic: "Sphere volume", hint: "V = 4/3 π r³" };
+    return { prompt: `Volume of sphere radius ${r} (4/3 π r³)`, answer: formatNum(vol), topic: "Sphere volume", hint: `V = 4/3 × π × ${r}³ = 4.1867 × ${r * r * r}` };
   }
   if (t === "trig") {
     const angles = [30, 45, 60];
@@ -152,7 +155,7 @@ function buildAdvanced() {
     const trigs = ["sin", "cos", "tan"];
     const name = trigs[rand(0, 2)];
     const val = { sin: { 30: 0.5, 45: 0.71, 60: 0.87 }, cos: { 30: 0.87, 45: 0.71, 60: 0.5 }, tan: { 30: 0.58, 45: 1, 60: 1.73 } };
-    return { prompt: `${name}(${angle}°) = ?`, answer: val[name][angle], topic: "Trigonometry", hint: "Use the unit circle." };
+    return { prompt: `${name}(${angle}°) = ?`, answer: val[name][angle], topic: "Trigonometry", hint: `Use unit circle. ${name}(${angle}°) = ` };
   }
   const bases = [2, 10, 5];
   const base = bases[rand(0, 2)];
@@ -160,7 +163,7 @@ function buildAdvanced() {
   const nums = vals[base];
   const v = nums[rand(0, nums.length - 1)];
   const ans = Math.round(Math.log(v) / Math.log(base));
-  return { prompt: `log_${base}(${v}) = ?`, answer: ans, topic: "Logarithms", hint: "What power of the base gives the number?" };
+  return { prompt: `log_${base}(${v}) = ?`, answer: ans, topic: "Logarithms", hint: `${base}^? = ${v} → ` };
 }
 
 function buildCalculus() {
@@ -168,15 +171,15 @@ function buildCalculus() {
   if (t === "derivative") {
     const n = rand(3, 8), x = rand(2, 10);
     const ans = n * x ** (n - 1);
-    return { prompt: `d/dx of x^${n} at x = ${x}`, answer: ans, topic: "Power rule", hint: "n · x^(n-1)" };
+    return { prompt: `d/dx of x^${n} at x = ${x}`, answer: ans, topic: "Power rule", hint: `d/dx(x^${n}) = ${n}x^${n - 1} → ${n} × ${x}^${n - 1} = ${n} × ${x ** (n - 1)}` };
   }
   if (t === "integral") {
     const a = rand(3, 15), b = rand(5, 20);
-    return { prompt: `∫₀¹ (${a}x + ${b}) dx`, answer: formatNum(a / 2 + b), topic: "Definite integral", hint: "Integrate then evaluate bounds." };
+    return { prompt: `∫₀¹ (${a}x + ${b}) dx`, answer: formatNum(a / 2 + b), topic: "Definite integral", hint: `∫(${a}x + ${b}) = ${a / 2}x² + ${b}x → evaluate from 0 to 1` };
   }
   const x = rand(2, 8);
   const ans = 2 * x;
-  return { prompt: `Slope of tangent to y = x² at x = ${x}`, answer: ans, topic: "Tangent slope", hint: "Derivative of x² is 2x." };
+  return { prompt: `Slope of tangent to y = x² at x = ${x}`, answer: ans, topic: "Tangent slope", hint: `dy/dx = 2x → at x = ${x}, slope = 2 × ${x}` };
 }
 
 let hasPython = false;

@@ -230,6 +230,48 @@ button.secondary {
   font-size: 1.4rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.streak-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.streak-badge.badge-bronze {
+  background: rgba(205, 127, 50, 0.25);
+  color: #cd7f32;
+  border: 1px solid rgba(205, 127, 50, 0.4);
+}
+
+.streak-badge.badge-silver {
+  background: rgba(192, 192, 192, 0.2);
+  color: #c0c0c0;
+  border: 1px solid rgba(192, 192, 192, 0.4);
+}
+
+.streak-badge.badge-gold {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.streak-badge.badge-fire {
+  background: rgba(255, 69, 0, 0.2);
+  color: #ff4500;
+  border: 1px solid rgba(255, 69, 0, 0.4);
+  animation: fire-pulse 1s ease infinite;
+}
+
+@keyframes fire-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .question-card h2 {
