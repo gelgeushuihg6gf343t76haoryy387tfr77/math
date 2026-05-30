@@ -164,11 +164,12 @@ function buildCalculus() {
 
 let hasPython = false;
 try {
+  fs.accessSync(path.join(__dirname, "math_questions.py"));
   const test = spawnSync("python3", ["--version"], { encoding: "utf-8", timeout: 2000 });
   hasPython = test.status === 0 && !test.error;
 } catch { hasPython = false; }
 if (hasPython) console.log("Python detected, using math_questions.py");
-else console.log("No Python, using JS fallback");
+else console.log("No Python, using JS fallback (faster on cloud)");
 
 function callPython(mode) {
   if (!hasPython) return null;
