@@ -33,12 +33,10 @@ const gameOverScore = document.getElementById("gameOverScore");
 const gameOverStreak = document.getElementById("gameOverStreak");
 const gameOverMode = document.getElementById("gameOverMode");
 const tryAgainBtn = document.getElementById("tryAgainBtn");
-const mainContent = document.querySelector(".app-shell");
-const livesContainer = document.getElementById("livesContainer");
 
 const modeLabels = {
   easy: "Easy", middle: "Middle", hard: "Hard",
-  advanced: "Algebra + Geometry", calculus: "Calculus"
+  advanced: "Advanced", calculus: "Calculus"
 };
 
 const modeMultipliers = {
@@ -53,10 +51,9 @@ function renderStats() {
   scoreEl.textContent = String(state.score);
   modeEl.textContent = modeLabels[state.mode] || "Easy";
   streakEl.textContent = String(state.streak);
-  livesContainer.textContent = "❤️".repeat(Math.max(0, state.lives));
   livesEl.textContent = String(state.lives);
   goalProgressEl.value = state.solvedToday;
-  goalTextEl.textContent = `${state.solvedToday} / 10 done`;
+  goalTextEl.textContent = `${state.solvedToday} / 10`;
 }
 
 function animateEl(el, cls) {
@@ -65,26 +62,11 @@ function animateEl(el, cls) {
   el.classList.add(cls);
 }
 
-function spawnParticles(x, y) {
-  for (let i = 0; i < 12; i++) {
-    const p = document.createElement("div");
-    p.className = "particle";
-    p.style.left = x + "px";
-    p.style.top = y + "px";
-    p.style.setProperty("--dx", (Math.random() - 0.5) * 120 + "px");
-    p.style.setProperty("--dy", -(Math.random() * 100 + 50) + "px");
-    p.style.background = ["#15a34a", "#3b82f6", "#eab308", "#f97316"][Math.floor(Math.random() * 4)];
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 800);
-  }
-}
-
 function showGameOver() {
   gameOverScore.textContent = state.score;
   gameOverStreak.textContent = state.streak;
   gameOverMode.textContent = modeLabels[state.mode];
   gameOverOverlay.classList.add("show");
-  animateEl(gameOverOverlay, "overlay-in");
 }
 
 function hideGameOver() {
@@ -116,16 +98,16 @@ function loadLocalState() {
     renderStats();
     if (saved.isLightMode) {
       document.body.classList.add("light-mode");
-      themeToggleBtn.textContent = "Dark Mode";
+      themeToggleBtn.textContent = "Dark";
     }
     return true;
   } catch { return false; }
 }
 
-function setMessage(text, type = "info") {
+function setMessage(text, type) {
   messageEl.textContent = text;
-  messageEl.className = `message ${type}`;
-  animateEl(messageEl, "msg-pop");
+  messageEl.className = "message";
+  if (type) messageEl.classList.add(type);
 }
 
 async function getQuestion() {
@@ -134,7 +116,7 @@ async function getQuestion() {
   state.currentQuestion = data;
   state.answered = false;
   questionTextEl.textContent = data.prompt;
-  topicTextEl.textContent = `Topic: ${data.topic}`;
+  topicTextEl.textContent = data.topic;
 
   choicesWrap.innerHTML = "";
   const letters = ["A", "B", "C"];
@@ -146,18 +128,13 @@ async function getQuestion() {
     btn.addEventListener("click", () => handleChoice(letter));
     choicesWrap.appendChild(btn);
   });
-
-  animateEl(questionCard, "q-pop");
-  choicesWrap.querySelectorAll(".choice-btn").forEach((b, i) => {
-    b.style.animationDelay = `${i * 0.08}s`;
-  });
 }
 
 function handleChoice(letter) {
   if (state.answered) return;
   if (!state.currentQuestion) return;
   if (!state.username) {
-    setMessage("Enter your name and press Start first!", "warn");
+    setMessage("Enter your name and press Start first.");
     return;
   }
 
@@ -186,21 +163,15 @@ function handleChoice(letter) {
         state.score += points;
         state.streak += 1;
         state.solvedToday += 1;
-        setMessage(`Correct! +${points} pts`, "success");
-        animateEl(scoreEl, "score-pop");
-        const rect = scoreEl.getBoundingClientRect();
-        spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        setMessage(`+${points} pts`);
       } else {
         state.lives -= 1;
         state.streak = 0;
-        setMessage(`Nope. Answer was ${result.correct_letter}: ${result.answer}`, "error");
-        animateEl(livesContainer, "life-lost");
+        setMessage(`${result.correct_letter}: ${result.answer}`);
       }
 
       if (state.lives <= 0) {
-        saveProgress().then(() => {
-          showGameOver();
-        });
+        saveProgress().then(() => showGameOver());
         return;
       }
 
@@ -219,14 +190,12 @@ function resetChoices() {
   choicesWrap.querySelectorAll(".choice-btn").forEach((b) => {
     b.classList.remove("correct", "wrong", "selected");
     b.style.pointerEvents = "auto";
-    b.style.animationDelay = "0s";
   });
 }
 
 function showHint() {
   if (!state.currentQuestion) return;
-  const hint = state.currentQuestion.hint || "Break it into steps.";
-  setMessage(`Hint: ${hint}`, "info");
+  setMessage(state.currentQuestion.hint || "Break into steps.");
 }
 
 function tryAgain() {
@@ -235,7 +204,7 @@ function tryAgain() {
   state.streak = 0;
   state.score = Math.max(0, state.score - 20);
   renderStats();
-  setMessage("Try again! You got this 💪", "info");
+  setMessage("");
   resetChoices();
   getQuestion();
 }
@@ -243,7 +212,7 @@ function tryAgain() {
 async function startGame() {
   const username = usernameEl.value.trim();
   if (!username) {
-    setMessage("Please enter your name first.", "warn");
+    setMessage("Enter your name first.");
     return;
   }
   hideGameOver();
@@ -256,12 +225,7 @@ async function startGame() {
     state.solvedToday = 0;
   }
   renderStats();
-  setMessage(
-    restored
-      ? `Welcome back ${state.username}!`
-      : `Welcome ${state.username}! Mode: ${modeLabels[state.mode]}`,
-    "success"
-  );
+  setMessage(restored ? `Welcome back.` : `Started.`);
   await saveProgress();
   await getQuestion();
   await loadLeaderboard();
@@ -304,13 +268,12 @@ async function loadLeaderboard() {
   const data = await res.json();
   leaderboardEl.innerHTML = "";
   if (!data.leaderboard.length) {
-    leaderboardEl.innerHTML = "<li>No scores yet. Be the first!</li>";
+    leaderboardEl.innerHTML = "<li>No scores yet.</li>";
     return;
   }
   data.leaderboard.forEach((entry, i) => {
     const li = document.createElement("li");
-    const medal = i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
-    li.textContent = `${medal} ${entry.username} - ${entry.score} pts`;
+    li.textContent = `${entry.username} - ${entry.score}`;
     leaderboardEl.appendChild(li);
   });
 }
@@ -324,7 +287,6 @@ function setMode(mode) {
   });
   if (state.username) {
     getQuestion();
-    setMessage(`Switched to ${modeLabels[mode]} mode.`, "info");
     saveLocalState();
   }
 }
@@ -339,7 +301,7 @@ function initModeButtons() {
 function toggleTheme() {
   const body = document.body;
   const isLight = body.classList.toggle("light-mode");
-  themeToggleBtn.textContent = isLight ? "Dark Mode" : "Light Mode";
+  themeToggleBtn.textContent = isLight ? "Dark" : "Light";
   saveLocalState();
 }
 
@@ -347,33 +309,33 @@ async function handleManualSave() {
   if (!state.username) {
     const username = usernameEl.value.trim();
     if (!username) {
-      setMessage("Enter your name first, then Save.", "warn");
+      setMessage("Enter your name first.");
       return;
     }
     state.username = username;
   }
   await saveProgress();
-  setMessage("Progress saved successfully.", "success");
+  setMessage("Saved.");
 }
 
 async function handleManualLoad() {
   const username = usernameEl.value.trim() || state.username;
   if (!username) {
-    setMessage("Enter your name first, then Load.", "warn");
+    setMessage("Enter your name first.");
     return;
   }
   const loaded = await loadProgressByUsername(username);
   if (!loaded) {
     const hasLocal = loadLocalState();
     if (hasLocal) {
-      setMessage("Loaded local saved progress.", "success");
+      setMessage("Loaded.");
       await getQuestion();
       return;
     }
-    setMessage("No saved progress found yet.", "warn");
+    setMessage("No saved data.");
     return;
   }
-  setMessage("Saved progress loaded from backend.", "success");
+  setMessage("Loaded.");
   await getQuestion();
 }
 

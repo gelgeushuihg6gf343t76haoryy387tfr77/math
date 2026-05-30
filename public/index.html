@@ -14,7 +14,7 @@
         <h2>Game Over</h2>
         <div class="go-stats">
           <p>Score: <span id="gameOverScore">0</span></p>
-          <p>Best Streak: <span id="gameOverStreak">0</span></p>
+          <p>Streak: <span id="gameOverStreak">0</span></p>
           <p>Mode: <span id="gameOverMode">Easy</span></p>
         </div>
         <button id="tryAgainBtn" class="go-btn">Try Again</button>
@@ -25,29 +25,29 @@
       <header class="hero">
         <div>
           <h1>Math Arena</h1>
-          <p>Multiple choice math battles — pick A, B, or C!</p>
+          <p>Multiple choice — pick A, B, or C.</p>
         </div>
       </header>
 
       <section class="card control-card">
         <div class="control-head">
-          <h3>Mode Selection</h3>
-          <button id="themeToggleBtn" class="secondary">Light Mode</button>
+          <h3>Mode</h3>
+          <button id="themeToggleBtn" class="secondary">Light</button>
         </div>
         <div id="modeButtons" class="mode-grid">
-          <button class="mode-btn active" data-mode="easy">Easy (Grade 1-4)</button>
-          <button class="mode-btn" data-mode="middle">Middle (Grade 4-6)</button>
-          <button class="mode-btn" data-mode="hard">Hard (Grade 7-9)</button>
-          <button class="mode-btn" data-mode="advanced">Algebra + Geometry (Grade 10-12)</button>
-          <button class="mode-btn" data-mode="calculus">Calculus (Grade 10-12+)</button>
+          <button class="mode-btn active" data-mode="easy">Easy</button>
+          <button class="mode-btn" data-mode="middle">Middle</button>
+          <button class="mode-btn" data-mode="hard">Hard</button>
+          <button class="mode-btn" data-mode="advanced">Advanced</button>
+          <button class="mode-btn" data-mode="calculus">Calculus</button>
         </div>
       </section>
 
       <section class="card login-card">
-        <label for="username">Student Name</label>
+        <label for="username">Name</label>
         <div class="row">
-          <input id="username" placeholder="Type your name..." maxlength="20" />
-          <button id="startBtn" class="start-btn">▶ Start</button>
+          <input id="username" placeholder="Enter name..." maxlength="20" />
+          <button id="startBtn" class="start-btn">Start</button>
           <button id="saveBtn" class="secondary">Save</button>
           <button id="loadBtn" class="secondary">Load</button>
         </div>
@@ -57,15 +57,15 @@
         <article class="card"><h3>Score</h3><p id="score">0</p></article>
         <article class="card"><h3>Mode</h3><p id="mode">Easy</p></article>
         <article class="card"><h3>Streak</h3><p id="streak">0</p></article>
-        <article class="card"><h3>Lives <span id="livesContainer">❤️❤️❤️</span></h3><p id="lives">3</p></article>
+        <article class="card"><h3>Lives</h3><p id="lives">3</p></article>
       </section>
 
       <section class="card question-card">
-        <h2 id="questionText">Press Start to get your first challenge!</h2>
+        <h2 id="questionText">Press Start to begin.</h2>
         <p id="topicText" class="topic">Topic: -</p>
         <div id="choicesWrap" class="choices-grid"></div>
         <div class="row">
-          <button id="hintBtn" class="secondary">💡 Hint</button>
+          <button id="hintBtn" class="secondary">Hint</button>
         </div>
         <p id="message" class="message"></p>
       </section>
@@ -73,13 +73,13 @@
       <section class="grid-2">
         <article class="card">
           <h3>Daily Goal</h3>
-          <p>Solve 10 questions today.</p>
+          <p>10 questions solved.</p>
           <progress id="goalProgress" max="10" value="0"></progress>
-          <p id="goalText">0 / 10 done</p>
+          <p id="goalText">0 / 10</p>
         </article>
 
         <article class="card">
-          <h3>Top Students</h3>
+          <h3>Leaderboard</h3>
           <ol id="leaderboard"></ol>
         </article>
       </section>
