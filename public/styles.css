@@ -202,6 +202,11 @@ button:hover {
   opacity: 0.85;
 }
 
+button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 button.secondary {
   background: rgba(107, 114, 128, 0.35);
 }

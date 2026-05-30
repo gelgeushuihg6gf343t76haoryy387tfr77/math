@@ -5,6 +5,7 @@ const state = {
   streak: 0,
   lives: 3,
   solvedToday: 0,
+  hintsLeft: 20,
   currentQuestion: null,
   answered: false
 };
@@ -14,6 +15,7 @@ const modeEl = document.getElementById("mode");
 const streakEl = document.getElementById("streak");
 const streakBadgeEl = document.getElementById("streakBadge");
 const livesEl = document.getElementById("lives");
+const hintsLeftEl = document.getElementById("hintsLeft");
 const questionTextEl = document.getElementById("questionText");
 const topicTextEl = document.getElementById("topicText");
 const messageEl = document.getElementById("message");
@@ -69,6 +71,8 @@ function renderStats() {
     streakBadgeEl.className = "streak-badge";
   }
   livesEl.textContent = String(state.lives);
+  if (hintsLeftEl) hintsLeftEl.textContent = String(state.hintsLeft);
+  hintBtn.disabled = state.hintsLeft <= 0;
   goalProgressEl.value = state.solvedToday;
   goalTextEl.textContent = `${state.solvedToday} / 10`;
 }
@@ -88,6 +92,7 @@ function saveLocalState() {
   const snapshot = {
     username: state.username, score: state.score, mode: state.mode,
     streak: state.streak, lives: state.lives, solvedToday: state.solvedToday,
+    hintsLeft: state.hintsLeft,
     isLightMode: document.body.classList.contains("light-mode")
   };
   localStorage.setItem("math-save", JSON.stringify(snapshot));
@@ -104,6 +109,7 @@ function loadLocalState() {
     state.streak = Number(saved.streak) || 0;
     state.lives = Number(saved.lives) || 3;
     state.solvedToday = Number(saved.solvedToday) || 0;
+    state.hintsLeft = Number(saved.hintsLeft) ?? 20;
     if (state.username) usernameEl.value = state.username;
     setMode(state.mode);
     renderStats();
@@ -207,9 +213,16 @@ function resetChoices() {
 
 function showHint() {
   if (!state.currentQuestion) return;
+  if (state.hintsLeft <= 0) {
+    setMessage("No hints remaining.");
+    return;
+  }
+  state.hintsLeft -= 1;
   const h = state.currentQuestion.hint || "Break the problem into smaller steps.";
   const t = state.currentQuestion.topic || "";
   setMessage(`[${t}] ${h}`);
+  renderStats();
+  saveLocalState();
 }
 
 function tryAgain() {
@@ -237,6 +250,7 @@ async function startGame() {
     state.streak = 0;
     state.lives = 3;
     state.solvedToday = 0;
+    state.hintsLeft = 20;
   }
   renderStats();
   setMessage(restored ? `Welcome back, ${state.username}.` : `Started, ${state.username}.`);
