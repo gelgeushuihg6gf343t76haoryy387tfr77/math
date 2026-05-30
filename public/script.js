@@ -51,10 +51,10 @@ const modeRanks = {
 };
 
 function getStreakBadge(streak) {
-  if (streak >= 5) return { text: "ON FIRE", cls: "badge-fire" };
-  if (streak >= 3) return { text: "GOLD", cls: "badge-gold" };
-  if (streak >= 2) return { text: "SILVER", cls: "badge-silver" };
-  if (streak >= 1) return { text: "BRONZE", cls: "badge-bronze" };
+  if (streak >= 20) return { text: "MVP", cls: "badge-mvp" };
+  if (streak >= 10) return { text: "GOLD", cls: "badge-gold" };
+  if (streak >= 6) return { text: "SILVER", cls: "badge-silver" };
+  if (streak >= 2) return { text: "BRONZE", cls: "badge-bronze" };
   return null;
 }
 
@@ -304,9 +304,19 @@ async function loadLeaderboard() {
       leaderboardEl.innerHTML = "<li>No scores yet.</li>";
       return;
     }
-    data.leaderboard.forEach((entry) => {
+    data.leaderboard.forEach((entry, i) => {
       const li = document.createElement("li");
-      li.textContent = `${entry.username} - ${entry.score}`;
+      li.className = "lb-entry";
+      if (i === 0) li.classList.add("lb-gold");
+      else if (i === 1) li.classList.add("lb-silver");
+      else if (i === 2) li.classList.add("lb-bronze");
+      const rank = document.createElement("span");
+      rank.className = "lb-rank";
+      rank.textContent = `#${i + 1}`;
+      li.appendChild(rank);
+      const name = document.createElement("span");
+      name.textContent = `${entry.username} - ${entry.score}`;
+      li.appendChild(name);
       leaderboardEl.appendChild(li);
     });
   } catch {}
