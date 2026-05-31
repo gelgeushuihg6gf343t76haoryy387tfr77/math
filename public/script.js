@@ -8,7 +8,8 @@ const state = {
   hintsLeft: 25,
   currentQuestion: null,
   answered: false,
-  hintUsedThisQuestion: false
+  hintUsedThisQuestion: false,
+  goalCompletedToday: false
 };
 
 const scoreEl = document.getElementById("score");
@@ -97,7 +98,7 @@ function saveLocalState() {
   const snapshot = {
     username: state.username, score: state.score, mode: state.mode,
     streak: state.streak, lives: state.lives, solvedToday: state.solvedToday,
-    hintsLeft: state.hintsLeft,
+    hintsLeft: state.hintsLeft, goalCompletedToday: state.goalCompletedToday,
     isLightMode: document.body.classList.contains("light-mode")
   };
   localStorage.setItem("math-save", JSON.stringify(snapshot));
@@ -115,6 +116,7 @@ function loadLocalState() {
     state.lives = Number(saved.lives) || 3;
     state.solvedToday = Number(saved.solvedToday) || 0;
     state.hintsLeft = typeof saved.hintsLeft === "number" ? saved.hintsLeft : 25;
+    state.goalCompletedToday = saved.goalCompletedToday === true && state.solvedToday >= 10;
     if (state.username) usernameEl.value = state.username;
     setMode(state.mode);
     renderStats();
@@ -205,7 +207,8 @@ function handleChoice(letter) {
 
       saveProgress().then(() => {
         loadLeaderboard();
-        if (state.solvedToday === 10) {
+        if (state.solvedToday === 10 && !state.goalCompletedToday) {
+          state.goalCompletedToday = true;
           showGoalComplete();
         } else {
           setTimeout(() => {
@@ -277,6 +280,7 @@ async function startGame() {
     state.lives = 3;
     state.solvedToday = 0;
     state.hintsLeft = 25;
+    state.goalCompletedToday = false;
   }
   renderStats();
   setMessage(restored ? `Welcome back, ${state.username}.` : `Started, ${state.username}.`);
@@ -314,6 +318,7 @@ async function loadProgressByUsername(username) {
     state.streak = Number(profile.currentStreak ?? profile.bestStreak) || 0;
     state.lives = Number(profile.currentLives) || 3;
     state.solvedToday = Number(profile.currentSolvedToday) || 0;
+    state.goalCompletedToday = state.solvedToday < 10 ? false : state.goalCompletedToday;
     state.hintsLeft = typeof profile.currentHints === "number" ? profile.currentHints : 25;
     state.mode = modeLabels[profile.currentMode] ? profile.currentMode : "easy";
     setMode(state.mode);
