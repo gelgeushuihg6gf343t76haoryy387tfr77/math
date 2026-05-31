@@ -601,14 +601,6 @@ li + li {
   background: rgba(107, 114, 128, 0.45);
 }
 
-.footer {
-  text-align: center;
-  padding: 12px;
-  color: var(--subtext);
-  font-size: 0.8rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
 @media (max-width: 800px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);

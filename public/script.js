@@ -29,6 +29,8 @@ const modeButtonsWrap = document.getElementById("modeButtons");
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 const startBtn = document.getElementById("startBtn");
 const hintBtn = document.getElementById("hintBtn");
+const saveBtn = document.getElementById("saveBtn");
+const loadBtn = document.getElementById("loadBtn");
 const choicesWrap = document.getElementById("choicesWrap");
 const questionCard = document.querySelector(".question-card");
 const gameOverOverlay = document.getElementById("gameOverOverlay");
@@ -96,6 +98,40 @@ function setMessage(text, type) {
   messageEl.textContent = text;
   messageEl.className = "message";
   if (type) messageEl.classList.add(type);
+}
+
+function saveLocalState() {
+  const snapshot = {
+    username: state.username, score: state.score, mode: state.mode,
+    streak: state.streak, lives: state.lives, solvedToday: state.solvedToday,
+    hintsLeft: state.hintsLeft, goalCompletedToday: state.goalCompletedToday,
+    isLightMode: document.body.classList.contains("light-mode")
+  };
+  localStorage.setItem("math-save", JSON.stringify(snapshot));
+}
+
+function loadLocalState() {
+  const raw = localStorage.getItem("math-save");
+  if (!raw) return false;
+  try {
+    const saved = JSON.parse(raw);
+    state.username = saved.username || "";
+    state.score = Number(saved.score) || 0;
+    state.mode = modeLabels[saved.mode] ? saved.mode : "easy";
+    state.streak = Number(saved.streak) || 0;
+    state.lives = Number(saved.lives) || 3;
+    state.solvedToday = Number(saved.solvedToday) || 0;
+    state.hintsLeft = typeof saved.hintsLeft === "number" ? saved.hintsLeft : 25;
+    state.goalCompletedToday = saved.goalCompletedToday === true && state.solvedToday >= 10;
+    if (state.username) usernameEl.value = state.username;
+    setMode(state.mode);
+    renderStats();
+    if (saved.isLightMode) {
+      document.body.classList.add("light-mode");
+      themeToggleBtn.textContent = "Dark";
+    }
+    return true;
+  } catch { return false; }
 }
 
 async function getQuestion() {
@@ -207,6 +243,7 @@ function showHint() {
   const t = state.currentQuestion.topic || "";
   setMessage(`[${t}] ${h}`);
   renderStats();
+  saveLocalState();
 }
 
 function showGoalComplete() {
@@ -265,6 +302,7 @@ async function saveProgress() {
         hintsLeft: state.hintsLeft
       })
     });
+    saveLocalState();
   } catch {}
 }
 
@@ -285,6 +323,7 @@ async function loadProgressByUsername(username) {
     state.mode = modeLabels[profile.currentMode] ? profile.currentMode : "easy";
     setMode(state.mode);
     renderStats();
+    saveLocalState();
     return true;
   } catch { return false; }
 }
@@ -325,6 +364,7 @@ function setMode(mode) {
   });
   if (state.username) {
     getQuestion();
+    saveLocalState();
   }
 }
 
@@ -339,6 +379,35 @@ function toggleTheme() {
   const body = document.body;
   const isLight = body.classList.toggle("light-mode");
   themeToggleBtn.textContent = isLight ? "Dark" : "Light";
+  saveLocalState();
+}
+
+async function handleManualSave() {
+  if (!state.username) {
+    const name = usernameEl.value.trim();
+    if (!name) { setMessage("Enter your name first."); return; }
+    state.username = name;
+  }
+  await saveProgress();
+  setMessage("Progress saved to server.");
+}
+
+async function handleManualLoad() {
+  const name = usernameEl.value.trim() || state.username;
+  if (!name) { setMessage("Enter your name first."); return; }
+  const loaded = await loadProgressByUsername(name);
+  if (loaded) {
+    setMessage("Loaded from server.");
+    await getQuestion();
+  } else {
+    const local = loadLocalState();
+    if (local) {
+      setMessage("Loaded from local storage.");
+      await getQuestion();
+    } else {
+      setMessage("No saved data for \"" + name + "\".");
+    }
+  }
 }
 
 function goalKeepPlaying() {
@@ -354,6 +423,8 @@ function goalStop() {
 startBtn.addEventListener("click", startGame);
 hintBtn.addEventListener("click", showHint);
 themeToggleBtn.addEventListener("click", toggleTheme);
+saveBtn.addEventListener("click", handleManualSave);
+loadBtn.addEventListener("click", handleManualLoad);
 tryAgainBtn.addEventListener("click", tryAgain);
 goalKeepPlayingBtn.addEventListener("click", goalKeepPlaying);
 goalStopBtn.addEventListener("click", goalStop);
@@ -361,3 +432,4 @@ goalStopBtn.addEventListener("click", goalStop);
 initModeButtons();
 renderStats();
 loadLeaderboard();
+loadLocalState();
