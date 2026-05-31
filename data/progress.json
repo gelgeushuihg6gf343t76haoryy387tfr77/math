@@ -1,8 +1,10 @@
 {
-  "players": [],
+  "players": [
+    {"username": "noble1", "bestScore": 200, "bestLevel": 3, "bestStreak": 8, "bestMode": "hard", "currentScore": 200, "currentStreak": 8, "currentLives": 3, "currentSolvedToday": 10, "currentHints": 25, "currentMode": "hard", "lastPlayedAt": "2026-05-31T12:00:00"},
+    {"username": "noble", "bestScore": 20, "bestLevel": 1, "bestStreak": 2, "bestMode": "easy", "currentScore": 20, "currentStreak": 2, "currentLives": 3, "currentSolvedToday": 3, "currentHints": 25, "currentMode": "easy", "lastPlayedAt": "2026-05-31T12:00:00"}
+  ],
   "leaderboard": [
-    {"username": "noble1", "score": 200, "date": "2026-05-31"},
-    {"username": "noble", "score": 20, "date": "2026-05-31"}
+    {"username": "noble1", "score": 200},
+    {"username": "noble", "score": 20}
   ]
-}
 }
