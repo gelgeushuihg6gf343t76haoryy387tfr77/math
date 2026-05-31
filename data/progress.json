@@ -1,10 +1,16 @@
 {
   "players": [
+    {"username": "proplayer6767676767", "bestScore": 844, "bestLevel": 5, "bestStreak": 12, "bestMode": "easy", "currentScore": 844, "currentStreak": 3, "currentLives": 2, "currentSolvedToday": 82, "currentHints": 25, "currentMode": "easy", "lastPlayedAt": "2026-05-31T10:43:09.561342"},
     {"username": "noble1", "bestScore": 200, "bestLevel": 3, "bestStreak": 8, "bestMode": "hard", "currentScore": 200, "currentStreak": 8, "currentLives": 3, "currentSolvedToday": 10, "currentHints": 25, "currentMode": "hard", "lastPlayedAt": "2026-05-31T12:00:00"},
+    {"username": "Hein", "bestScore": 137, "bestLevel": 4, "bestStreak": 10, "bestMode": "easy", "currentScore": 137, "currentStreak": 10, "currentLives": 2, "currentSolvedToday": 11, "currentHints": 25, "currentMode": "easy", "lastPlayedAt": "2026-05-31T11:09:09.198701"},
+    {"username": "Noble", "bestScore": 73, "bestLevel": 5, "bestStreak": 0, "bestMode": "calculus", "currentScore": 53, "currentStreak": 0, "currentLives": 3, "currentSolvedToday": 10, "currentHints": 25, "currentMode": "calculus", "lastPlayedAt": "2026-05-31T10:27:07.428890"},
     {"username": "noble", "bestScore": 20, "bestLevel": 1, "bestStreak": 2, "bestMode": "easy", "currentScore": 20, "currentStreak": 2, "currentLives": 3, "currentSolvedToday": 3, "currentHints": 25, "currentMode": "easy", "lastPlayedAt": "2026-05-31T12:00:00"}
   ],
   "leaderboard": [
+    {"username": "proplayer6767676767", "score": 844},
     {"username": "noble1", "score": 200},
+    {"username": "Hein", "score": 137},
+    {"username": "Noble", "score": 73},
     {"username": "noble", "score": 20}
   ]
 }
