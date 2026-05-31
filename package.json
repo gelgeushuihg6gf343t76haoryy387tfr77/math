@@ -1,9 +1,0 @@
-{
-  "name": "math-arena",
-  "version": "2.0.0",
-  "description": "Math Arena - Python Flask math game",
-  "scripts": {
-    "start": "python3 server.py",
-    "dev": "python3 server.py"
-  }
-}
