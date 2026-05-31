@@ -21,6 +21,18 @@
       </div>
     </div>
 
+    <div id="goalOverlay" class="game-over-overlay">
+      <div class="game-over-card">
+        <h2>Daily Quest Complete</h2>
+        <p style="color: var(--subtext); margin: 8px 0 4px; font-size: 0.95rem;">You finished your daily quest — 10 questions done.</p>
+        <p style="color: var(--good); font-weight: 700; font-size: 1.1rem;">Play infinitely or stop?</p>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+          <button id="goalKeepPlayingBtn" class="go-btn">Play Infinitely</button>
+          <button id="goalStopBtn" class="go-btn secondary-go-btn">Stop</button>
+        </div>
+      </div>
+    </div>
+
     <main class="app-shell">
       <header class="hero">
         <div>
@@ -65,7 +77,7 @@
         <p id="topicText" class="topic">Topic: -</p>
         <div id="choicesWrap" class="choices-grid"></div>
         <div class="row">
-          <button id="hintBtn" class="secondary">Hint (<span id="hintsLeft">20</span>)</button>
+          <button id="hintBtn" class="secondary">Hint (<span id="hintsLeft">25</span>)</button>
         </div>
         <p id="message" class="message"></p>
       </section>

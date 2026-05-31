@@ -212,6 +212,7 @@ def progress():
     streak = float(body.get("streak", 0))
     lives = float(body.get("lives", 3))
     today = float(body.get("solvedToday", 0))
+    hints = int(body.get("hintsLeft", 25))
     safe_mode = mode if mode in MODE_CONFIG else "easy"
     safe_level = max(level, MODE_RANK[safe_mode])
     store = read_store()
@@ -223,7 +224,7 @@ def progress():
             "bestStreak": streak, "bestMode": safe_mode,
             "currentScore": score, "currentStreak": streak,
             "currentLives": lives, "currentSolvedToday": today,
-            "currentMode": safe_mode, "lastPlayedAt": now
+            "currentHints": hints, "currentMode": safe_mode, "lastPlayedAt": now
         })
     else:
         existing["bestScore"] = max(existing["bestScore"], score)
@@ -231,7 +232,8 @@ def progress():
         existing["bestStreak"] = max(existing["bestStreak"], streak)
         existing["bestMode"] = safe_mode
         existing.update({"currentScore": score, "currentStreak": streak, "currentLives": lives,
-                         "currentSolvedToday": today, "currentMode": safe_mode, "lastPlayedAt": now})
+                         "currentSolvedToday": today, "currentHints": hints,
+                         "currentMode": safe_mode, "lastPlayedAt": now})
     top = sorted(store["players"], key=lambda x: -x["bestScore"])[:20]
     store["leaderboard"] = [{"username": p["username"], "score": p["bestScore"]} for p in top]
     write_store(store)

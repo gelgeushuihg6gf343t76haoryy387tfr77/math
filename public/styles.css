@@ -593,6 +593,14 @@ li + li {
   background: rgba(107, 114, 128, 0.7);
 }
 
+.secondary-go-btn {
+  background: rgba(107, 114, 128, 0.25);
+}
+
+.secondary-go-btn:hover {
+  background: rgba(107, 114, 128, 0.45);
+}
+
 @media (max-width: 800px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);

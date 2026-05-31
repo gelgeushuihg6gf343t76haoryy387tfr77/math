@@ -5,9 +5,10 @@ const state = {
   streak: 0,
   lives: 3,
   solvedToday: 0,
-  hintsLeft: 20,
+  hintsLeft: 25,
   currentQuestion: null,
-  answered: false
+  answered: false,
+  hintUsedThisQuestion: false
 };
 
 const scoreEl = document.getElementById("score");
@@ -36,6 +37,9 @@ const gameOverScore = document.getElementById("gameOverScore");
 const gameOverStreak = document.getElementById("gameOverStreak");
 const gameOverMode = document.getElementById("gameOverMode");
 const tryAgainBtn = document.getElementById("tryAgainBtn");
+const goalOverlay = document.getElementById("goalOverlay");
+const goalKeepPlayingBtn = document.getElementById("goalKeepPlayingBtn");
+const goalStopBtn = document.getElementById("goalStopBtn");
 
 const modeLabels = {
   easy: "Easy", middle: "Middle", hard: "Hard",
@@ -73,8 +77,9 @@ function renderStats() {
   livesEl.textContent = String(state.lives);
   if (hintsLeftEl) hintsLeftEl.textContent = String(state.hintsLeft);
   hintBtn.disabled = state.hintsLeft <= 0;
-  goalProgressEl.value = state.solvedToday;
-  goalTextEl.textContent = `${state.solvedToday} / 10`;
+  const displayToday = Math.min(state.solvedToday, 10);
+  goalProgressEl.value = displayToday;
+  goalTextEl.textContent = `${displayToday} / 10`;
 }
 
 function showGameOver() {
@@ -109,7 +114,7 @@ function loadLocalState() {
     state.streak = Number(saved.streak) || 0;
     state.lives = Number(saved.lives) || 3;
     state.solvedToday = Number(saved.solvedToday) || 0;
-    state.hintsLeft = Number(saved.hintsLeft) ?? 20;
+    state.hintsLeft = typeof saved.hintsLeft === "number" ? saved.hintsLeft : 25;
     if (state.username) usernameEl.value = state.username;
     setMode(state.mode);
     renderStats();
@@ -132,6 +137,7 @@ async function getQuestion() {
   const data = await res.json();
   state.currentQuestion = data;
   state.answered = false;
+  state.hintUsedThisQuestion = false;
   questionTextEl.textContent = data.prompt;
   topicTextEl.textContent = data.topic;
 
@@ -180,6 +186,9 @@ function handleChoice(letter) {
         state.score += points;
         state.streak += 1;
         state.solvedToday += 1;
+        if (state.hintsLeft < 25) {
+          state.hintsLeft += 1;
+        }
         setMessage(`+${points} pts`);
       } else {
         state.lives -= 1;
@@ -196,10 +205,14 @@ function handleChoice(letter) {
 
       saveProgress().then(() => {
         loadLeaderboard();
-        setTimeout(() => {
-          resetChoices();
-          getQuestion();
-        }, 1200);
+        if (state.solvedToday === 10) {
+          showGoalComplete();
+        } else {
+          setTimeout(() => {
+            resetChoices();
+            getQuestion();
+          }, 1200);
+        }
       });
     });
 }
@@ -213,16 +226,29 @@ function resetChoices() {
 
 function showHint() {
   if (!state.currentQuestion) return;
+  if (state.hintUsedThisQuestion) {
+    setMessage("Already used a hint for this question.");
+    return;
+  }
   if (state.hintsLeft <= 0) {
     setMessage("No hints remaining.");
     return;
   }
   state.hintsLeft -= 1;
+  state.hintUsedThisQuestion = true;
   const h = state.currentQuestion.hint || "Break the problem into smaller steps.";
   const t = state.currentQuestion.topic || "";
   setMessage(`[${t}] ${h}`);
   renderStats();
   saveLocalState();
+}
+
+function showGoalComplete() {
+  goalOverlay.classList.add("show");
+}
+
+function hideGoalOverlay() {
+  goalOverlay.classList.remove("show");
 }
 
 function tryAgain() {
@@ -250,7 +276,7 @@ async function startGame() {
     state.streak = 0;
     state.lives = 3;
     state.solvedToday = 0;
-    state.hintsLeft = 20;
+    state.hintsLeft = 25;
   }
   renderStats();
   setMessage(restored ? `Welcome back, ${state.username}.` : `Started, ${state.username}.`);
@@ -268,7 +294,8 @@ async function saveProgress() {
       body: JSON.stringify({
         username: state.username, score: state.score,
         level: modeRanks[state.mode], mode: state.mode,
-        streak: state.streak, lives: state.lives, solvedToday: state.solvedToday
+        streak: state.streak, lives: state.lives, solvedToday: state.solvedToday,
+        hintsLeft: state.hintsLeft
       })
     });
     saveLocalState();
@@ -287,6 +314,7 @@ async function loadProgressByUsername(username) {
     state.streak = Number(profile.currentStreak ?? profile.bestStreak) || 0;
     state.lives = Number(profile.currentLives) || 3;
     state.solvedToday = Number(profile.currentSolvedToday) || 0;
+    state.hintsLeft = typeof profile.currentHints === "number" ? profile.currentHints : 25;
     state.mode = modeLabels[profile.currentMode] ? profile.currentMode : "easy";
     setMode(state.mode);
     renderStats();
@@ -377,12 +405,24 @@ async function handleManualLoad() {
   }
 }
 
+function goalKeepPlaying() {
+  hideGoalOverlay();
+  resetChoices();
+  getQuestion();
+}
+
+function goalStop() {
+  hideGoalOverlay();
+}
+
 startBtn.addEventListener("click", startGame);
 hintBtn.addEventListener("click", showHint);
 themeToggleBtn.addEventListener("click", toggleTheme);
 saveBtn.addEventListener("click", handleManualSave);
 loadBtn.addEventListener("click", handleManualLoad);
 tryAgainBtn.addEventListener("click", tryAgain);
+goalKeepPlayingBtn.addEventListener("click", goalKeepPlaying);
+goalStopBtn.addEventListener("click", goalStop);
 
 initModeButtons();
 renderStats();
